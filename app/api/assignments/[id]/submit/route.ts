@@ -7,7 +7,7 @@ import { emailQueue } from "@/lib/queue";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,10 +15,11 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validated = submitAssignmentSchema.parse(body);
     const submission = await assignmentService.submitAssignment(
-      params.id,
+      id,
       session.user.id,
       validated.fileUrl
     );

@@ -5,7 +5,7 @@ import logger from "@/lib/logger";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -13,10 +13,8 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const enrollment = await courseService.enrollStudent(
-      params.id,
-      session.user.id
-    );
+    const { id } = await params;
+    const enrollment = await courseService.enrollStudent(id, session.user.id);
     return NextResponse.json(enrollment, { status: 201 });
   } catch (error) {
     logger.error("Error enrolling in course:", error);

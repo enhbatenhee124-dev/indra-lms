@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import prisma from "./prisma";
 import { z } from "zod";
+import type { Role } from "@prisma/client";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -40,16 +41,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.isApproved = user.isApproved;
+        token.role = user.role as Role;
+        token.isApproved = user.isApproved as boolean;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role;
-        session.user.isApproved = token.isApproved;
-        session.user.id = token.sub;
+        session.user.role = token.role as Role;
+        session.user.isApproved = token.isApproved as boolean;
+        session.user.id = token.sub as string;
       }
       return session;
     },
