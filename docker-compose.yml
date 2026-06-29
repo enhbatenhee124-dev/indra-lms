@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # User Service DB
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Course Service DB
+  course-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: course_db
+    volumes:
+      - course-db-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d course_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Assignment Service DB
+  assignment-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: assignment_db
+    volumes:
+      - assignment-db-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d assignment_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Grade Service DB
+  grade-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: grade_db
+    volumes:
+      - grade-db-data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d grade_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build: ./services/user-service
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://user:password@user-db:5432/user_db?schema=public
+      PORT: 3001
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  # Course Service
+  course-service:
+    build: ./services/course-service
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://user:password@course-db:5432/course_db?schema=public
+      PORT: 3002
+    depends_on:
+      course-db:
+        condition: service_healthy
+
+  # Assignment Service
+  assignment-service:
+    build: ./services/assignment-service
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://user:password@assignment-db:5432/assignment_db?schema=public
+      PORT: 3003
+    depends_on:
+      assignment-db:
+        condition: service_healthy
+
+  # Grade Service
+  grade-service:
+    build: ./services/grade-service
+    ports:
+      - "3004:3004"
+    environment:
+      DATABASE_URL: postgresql://user:password@grade-db:5432/grade_db?schema=public
+      PORT: 3004
+    depends_on:
+      grade-db:
+        condition: service_healthy
+
+volumes:
+  user-db-data:
+  course-db-data:
+  assignment-db-data:
+  grade-db-data:
