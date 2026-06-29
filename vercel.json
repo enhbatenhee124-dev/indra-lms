@@ -2,9 +2,5 @@
   "buildCommand": "npx prisma generate && npm run build",
   "installCommand": "npm ci",
   "outputDirectory": ".next",
-  "framework": "nextjs",
-  "env": {
-    "NEXTAUTH_URL": "https://your-vercel-domain.vercel.app",
-    "NEXTAUTH_SECRET": "@vercel/npx auth secret"
-  }
+  "framework": "nextjs"
 }
